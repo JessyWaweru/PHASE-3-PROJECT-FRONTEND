@@ -1,3 +1,4 @@
+import axios from "axios";
 import React,{useState} from "react";
 
 function AddReview(props){
@@ -6,35 +7,32 @@ function AddReview(props){
 
     const handleSubmit=(e)=>{
         e.preventDefault()
-        fetch(`http://localhost:9292/movies/${props.selectedMovie.id}/reviews`,{
-            method:'POST',
-            headers:{
-                'Content-Type':'application/json'
-            },
-            body:JSON.stringify({review:
-            newReview})
-        }
-       
-
-        )
-        .then(res=>res.json())
-        .then(data=>{
-            setMovieReviews([...movieReviews,data.review])
+        axios
+        .post(`http://localhost:9292/movies/${props.selectedMovie.id}/reviews`,{
+        review:newReview})    
+        .then(res=>{
+            setMovieReviews([...movieReviews,res.data])
             setNewReview('')
         })
+        .catch(error=>{
+            console.error('ERror adding review:',error)
+        })
+        if(newReview.trim()!==''){
+            props.onAddReview(newReview)
+            setNewReview('')
+        }
+       
     }
-    const handleInputChange=(e)=>{
-        setNewReview(e.target.value)
-    }
+    
 
     return(
         <div>
             <form onSubmit={handleSubmit}>
-                <label>Enter your movie review:
+                <label>Enter your movie review:</label>
                     <input type="text"
+                    id='review'
                     value={newReview}
-                    onChange={handleInputChange}/>
-                </label>
+                    onChange={e=>setNewReview(e.target.value)}/>
                 <button type='submit'>Submit</button>
             </form>
         </div>

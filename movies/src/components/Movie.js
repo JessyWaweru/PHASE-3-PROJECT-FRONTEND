@@ -17,15 +17,26 @@ const handleSelectMovie=(movie)=>{
     setSelectedMovie(movie)
     axios.get(`http://localhost:9292/movies/${movie.id}/reviews`).then((res)=>{setReviews(res.data)})
     }
-function deleteAllMovies(){
-    axios.delete('http://localhost:9292/movies')
+function handleAddReview(content){
+    axios.post(`http://localhost:9292/movies/${selectedMovie.id}/reviews`,{
+        content:content
+    })
+    .then(res=>{
+        setReviews([...reviews,res.data])
+    })
+
 }
 
-
+const handleDeleteReview=(reviewId)=>{
+    axios.delete(`http://localhost:9292/reviews/${reviewId}`)
+    .then(()=>{
+        setReviews(reviews.filter(review=>review.Id!==reviewId))
+    })
+}
 
 return (
     <div className='App'>
-        <h4 onClick={()=>deleteAllMovies()}>RESET MOVIE DATABASE</h4>
+    
         <h1>MOVIE REVIEW HUB</h1>
         <ul>
             {movies.map((movie)=>(
@@ -41,11 +52,14 @@ return (
                         <p>About:{selectedMovie.about}</p>
                         <p>Star Rating:{selectedMovie.star_rating}</p>
                         <h3>Reviews</h3>
-                        <p><AddReview selectedMovie={selectedMovie}/></p>
+                        <p><AddReview onAddReview={handleAddReview}selectedMovie={selectedMovie}
+                        reviews={reviews}
+                        setReviews={setReviews}/></p>
                         <ul>
                             {reviews.map((review)=>(
                                 <li key={review.id}>
                                     <strong>{review.username};</strong>{review.content}
+                                    <button onClick={()=>handleDeleteReview(review.Id)}>Delete</button>
                                 </li>
                             ))}
                         </ul>
